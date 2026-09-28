@@ -1,2 +1,25 @@
-# exoplanet-analysis
-Analysis of exoplanet properties using exploratory data analysis and machine learning, including prediction and clustering of planetary groups.
+# Statistical and Machine Learning Analysis of Exoplanet Properties
+
+## About
+
+This project focuses on analyzing exoplanet data to understand their physical and orbital properties and how these properties vary across different discovery methods.
+
+## Planned Work
+
+* Collect and prepare the exoplanet dataset.
+* Perform exploratory data analysis on planetary, orbital, and stellar properties.
+* Analyze differences between exoplanets based on discovery methods.
+* Study discovery trends and missing-data patterns.
+* Build a machine learning model to predict planet mass or radius.
+* Apply clustering techniques to identify natural groups of exoplanets.
+* Analyze and interpret the results.
+
+## Data Source
+
+NASA Exoplanet Archive — Planetary Systems Composite Parameters (`pscomppars`)
+
+## Project Status
+
+🚧 **Not Started**
+
+This README will be updated regularly as the project progresses and new analysis, models, and results are completed.
