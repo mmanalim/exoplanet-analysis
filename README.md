@@ -18,8 +18,3 @@ This project focuses on analyzing exoplanet data to understand their physical an
 
 NASA Exoplanet Archive — Planetary Systems Composite Parameters (`pscomppars`)
 
-## Project Status
-
-🚧 **Not Started**
-
-This README will be updated regularly as the project progresses and new analysis, models, and results are completed.
