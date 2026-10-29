@@ -47,12 +47,10 @@ Trained strictly on **2,796 empirical dynamical mass measurements** (preventing 
 * The Random Forest regressor achieves a **Median Absolute Error of $0.106$ dex** (corresponding to predicting mass within **$\sim 27\%$ relative median error**).
 * **Feature Importance**: Planet radius accounts for $>72\%$ of variance, with secondary contributions from stellar insolation and orbital separation.
 
-### 4. Unsupervised Clustering & Natural Demographics
-Unsupervised $K$-Means and Gaussian Mixture Models ($k=4$, Silhouette = $0.455$) spontaneously recover the 4 primary astrophysical regimes:
-1. **Rocky (Terrestrial & Super-Earth)**: $N=893$, Median $R_p = 1.42\,R_\oplus$, Median Mass $= 3.85\,M_\oplus$, dense rocky cores ($\rho \sim 5.8\,\text{g/cm}^3$).
-2. **Volatile Sub-Neptune / Ice Giant**: $N=953$, Median $R_p = 2.56\,R_\oplus$, Median Mass $= 11.2\,M_\oplus$, volatile-rich envelopes.
-3. **Cold Jovian Gas Giant**: $N=734$, Median $R_p = 11.60\,R_\oplus$, Median Mass $= 381.4\,M_\oplus$, wide separations ($P \sim 412$ days).
-4. **Irradiated Hot Jupiter**: $N=184$, Median $R_p = 13.40\,R_\oplus$, Median Mass $= 286.0\,M_\oplus$, close orbits ($P \sim 3.4$ days, $S > 500\,S_\oplus$).
+### 4. Unsupervised Clustering & Demographic Analysis
+Unsupervised $K$-Means and GMM clustering was systematically evaluated across two distinct regimes:
+* **Measured-Mass Subsample ($N=2,904$)**: Silhouette analysis identifies $k=3$ as optimal ($s=0.497$), cleanly resolving **Sub-Neptunes / Neptunes** ($N=1,168$), **Distant Cold Gas Giants** ($N=742$), and **Irradiated Hot Jupiters** ($N=994$). *Note: small rocky planets lack sufficient dynamical mass measurements in the archive to emerge as an isolated cluster.*
+* **Full Photometric Catalog ($N=5,756$)**: Clustering on 3 complete parameters ($R_p, P, S$) identifies $k=2$ as optimal ($s=0.496$), capturing the overarching cosmic bifurcation into **Small Volatile Worlds** ($N=4,693$) and **Gas Giants** ($N=1,063$).
 
 ---
 

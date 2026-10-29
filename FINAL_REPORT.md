@@ -133,12 +133,12 @@ To prevent data leakage, we trained and evaluated our models on the **2,796 plan
 
 | Model Architecture | 5-Fold CV $R^2$ (Mean $\pm$ Std) | Test Set $R^2$ | Test RMSE ($\log_{10}$ dex) | Test MAE ($\log_{10}$ dex) | Test MedAE ($\log_{10}$ dex) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **HistGradientBoosting** | **$0.856 \pm 0.019$** | **$0.880$** | **$0.350$** | **$0.223$** | **$0.126$** |
-| **Random Forest Regressor** | **$0.858 \pm 0.019$** | **$0.871$** | **$0.363$** | **$0.218$** | **$0.106$** |
-| **Support Vector Regressor (SVR-RBF)** | $0.811 \pm 0.022$ | $0.847$ | $0.395$ | $0.279$ | $0.192$ |
-| **$k$-Nearest Neighbors ($k$-NN)** | $0.787 \pm 0.022$ | $0.801$ | $0.451$ | $0.323$ | $0.232$ |
-| **Ridge Regression (L2)** | $0.760 \pm 0.040$ | $0.795$ | $0.458$ | $0.349$ | $0.288$ |
-| **Lasso Regression (L1)** | $0.759 \pm 0.039$ | $0.793$ | $0.460$ | $0.353$ | $0.293$ |
+| **HistGradientBoosting** | **zsh.861 \pm 0.018* | **zsh.880* | **zsh.351* | **zsh.225* | **zsh.135* |
+| **Random Forest Regressor** | **zsh.860 \pm 0.023* | **zsh.871* | **zsh.363* | **zsh.218* | **zsh.107* |
+| **Support Vector Regressor (SVR-RBF)** | zsh.817 \pm 0.031$ | zsh.847$ | zsh.395$ | zsh.279$ | zsh.192$ |
+| **569XNearest Neighbors (569XNN)** | zsh.792 \pm 0.037$ | zsh.801$ | zsh.451$ | zsh.323$ | zsh.232$ |
+| **Ridge Regression (L2)** | zsh.761 \pm 0.022$ | zsh.795$ | zsh.458$ | zsh.349$ | zsh.288$ |
+| **Lasso Regression (L1)** | zsh.760 \pm 0.021$ | zsh.793$ | zsh.460$ | zsh.353$ | zsh.293$ |
 
 ### 6.2 Key Insights from Regression Modeling
 1. **Tree Ensembles Outperform Linear Baselines**: Gradient boosting and Random Forests achieve superior performance ($R^2 \approx 0.87 - 0.88$) because the physical Mass-Radius relation undergoes non-linear regime shifts (rocky $\rightarrow$ volatile $\rightarrow$ degenerate gas) that linear models cannot capture without manual piecewise splines.
@@ -149,27 +149,32 @@ To prevent data leakage, we trained and evaluated our models on the **2,796 plan
 
 ## 7. Unsupervised Demographic Clustering
 
-Applying unsupervised **$K$-Means** and **Gaussian Mixture Models (GMM)** in the 4-dimensional normalized physical feature space ($\log R_p, \log M_p, \log P, \log S$) identified **$k=4$** as the optimal clustering solution (Silhouette = $0.455$, sharp inflection in GMM BIC).
+### 7.1 Multi-Sample Clustering Analysis & Honest Assessment
+To evaluate data-driven planetary populations without imposing pre-conceived astronomical taxonomies, we performed unsupervised **$K$-Means** and **Gaussian Mixture Models (GMM)** across two distinct data subsets:
+
+1. **Subsample A (Measured-Mass Subset, $N=2,904$)**: Exoplanets with empirical mass measurements, evaluated in the 4-dimensional standardized feature space ($\\log R_p, \\log M_p, \\log P, \\log S$).
+2. **Subsample B (Full Photometric Catalog, $N=5,756$)**: All cataloged planets with complete orbital and stellar parameters ($\\log R_p, \\log P, \\log S$), avoiding mass-selection attrition.
 
 ```
-                            UNSUPERVISED DEMOGRAPHIC CLUSTERS (k=4)
-   ========================================================================================
-   Cluster Label                        Sample Size  Median Radius  Median Mass   Median Period
-   ========================================================================================
-   1. Rocky (Terrestrial/Super-Earth)     N = 893      1.42 R⊕        3.85 M⊕       5.71 days
-   2. Volatile Sub-Neptune / Ice Giant    N = 953      2.56 R⊕       11.20 M⊕      13.82 days
-   3. Cold / Jovian Gas Giant             N = 734     11.60 R⊕      381.40 M⊕     412.00 days
-   4. Irradiated Hot Jupiter              N = 184     13.40 R⊕      286.00 M⊕       3.42 days
-   ========================================================================================
+                  HONEST CLUSTERING BENCHMARK (EMPIRICAL vs. FULL CATALOG)
+===================================================================================================
+Subset / Cluster                  Sample Size   Median Radius   Median Mass   Median Period   Insolation
+===================================================================================================
+Subsample A (k=3, Sil=0.497):
+  1. Sub-Neptune / Neptune-like     N = 1,168       2.46 R_earth   8.07 M_earth 10.61 d        42.6 S_earth
+  2. Jovian Gas Giant (Cold/Wide)   N =   742      13.00 R_earth 816.81 M_earth 920.70 d        0.5 S_earth
+  3. Hot Jupiter (Irradiated)       N =   994      12.95 R_earth 279.69 M_earth   4.12 d      469.9 S_earth
+---------------------------------------------------------------------------------------------------
+Subsample B (k=2, Sil=0.496):
+  1. Sub-Neptune / Small Worlds     N = 4,693       2.45 R_earth      —          7.48 d       114.0 S_earth
+  2. Jovian Gas Giants              N = 1,063      12.60 R_earth      —        472.00 d         1.4 S_earth
+===================================================================================================
 ```
 
-### Astrophysical Correspondence:
-* **Cluster 1 (Rocky Cores)**: Compact planets with bulk densities $\rho \sim 4.5 - 7.5\,\text{g/cm}^3$, lying strictly below the Fulton Gap ($R_p \le 1.6\,R_\oplus$).
-* **Cluster 2 (Volatile Sub-Neptunes)**: Intermediate-sized worlds ($2.0 - 4.0\,R_\oplus$) with bulk densities $\rho \sim 1.0 - 2.5\,\text{g/cm}^3$.
-* **Cluster 3 (Cold Jovians)**: Massive gas giants orbiting at wide distances ($P > 100$ days, $a > 0.5$ AU) detected predominantly by Radial Velocity.
-* **Cluster 4 (Hot Jupiters)**: Highly inflated, gas-rich Jovian planets ($R_p > 10\,R_\oplus$) subjected to intense stellar irradiation ($S > 500\,S_\oplus$), forming the upper boundary of the period-radius demographic plane.
-
-The data-driven clustering spontaneously recovered the classical astrophysical classifications without any supervisory guidance or prior domain labels.
+### 7.2 Methodological Note on Cluster Recovery & Missing Rocky Cores
+* **The Missing Rocky Cluster in Subsample A**: When clustering strictly on the measured-mass subset, $k=3$ is selected by silhouette maximization ($s=0.497$), cleanly separating close-in sub-Neptunes, distant cold gas giants, and highly irradiated hot Jupiters. A distinct terrestrial/super-Earth core cluster is **not** isolated as an independent cluster because low-mass rocky worlds with empirical Doppler or TTV masses are substantially under-represented in the archive relative to gas giants.
+* **The Dual-Populations of the Galaxy (Subsample B)**: On the complete catalog ($N=5,756$), the algorithm clearly delineates the primary bi-modal divide of exoplanetary architectures: compact, volatile-bearing inner planets ($R_p \\sim 2.45\\,R_\\oplus$) versus expanded Jovian giants ($R_p \\sim 12.60\\,R_\\oplus$).
+* **Heuristic 4-Cluster Partitioning**: While four physical archetypes (Terrestrial, Sub-Neptune, Cold Jovian, Hot Jupiter) are well-established in astrophysics, forcing $k=4$ on mass-biased subsets yields lower silhouette scores ($s=0.455$). Honest data science demands presenting cluster results as data-driven groupings shaped by observational availability rather than absolute cosmic categories.
 
 ---
 
@@ -193,15 +198,17 @@ The data-driven clustering spontaneously recovered the classical astrophysical c
 
 ## 9. Figures Reference & Verification
 
-All figures referenced in this analysis have been generated, verified, and saved to the [`figures/`](file:///c:/Users/DELL/OneDrive/Desktop/exoplanet-analysis/figures) directory:
-* [01_data_preparation_overview.png](file:///c:/Users/DELL/OneDrive/Desktop/exoplanet-analysis/figures/01_data_preparation_overview.png) — Feature breakdown and mass provenance distribution.
-* [02_eda_physical_properties.png](file:///c:/Users/DELL/OneDrive/Desktop/exoplanet-analysis/figures/02_eda_physical_properties.png) — Mass, radius (Fulton gap), density, and empirical Mass-Radius diagram.
-* [02_eda_orbital_properties.png](file:///c:/Users/DELL/OneDrive/Desktop/exoplanet-analysis/figures/02_eda_orbital_properties.png) — Period, semi-major axis, Kepler's Third Law fit, and Neptune Desert.
-* [02_eda_host_star_relations.png](file:///c:/Users/DELL/OneDrive/Desktop/exoplanet-analysis/figures/02_eda_host_star_relations.png) — Giant planet metallicity effect and Habitable Zone insolation.
-* [03_detection_method_comparison.png](file:///c:/Users/DELL/OneDrive/Desktop/exoplanet-analysis/figures/03_detection_method_comparison.png) — Transit vs. RV distributions and parameter space coverage.
-* [04_discovery_trends.png](file:///c:/Users/DELL/OneDrive/Desktop/exoplanet-analysis/figures/04_discovery_trends.png) — Historical timeline, cumulative space missions, and distance evolution.
-* [05_missing_data_analysis.png](file:///c:/Users/DELL/OneDrive/Desktop/exoplanet-analysis/figures/05_missing_data_analysis.png) — Systematic missingness by feature, method, era, and co-missingness heatmap.
-* [06_ml_model_comparison.png](file:///c:/Users/DELL/OneDrive/Desktop/exoplanet-analysis/figures/06_ml_model_comparison.png) — Regression benchmark ($R^2$, RMSE, MAE), parity plot, and residual distribution.
-* [06_ml_feature_importance.png](file:///c:/Users/DELL/OneDrive/Desktop/exoplanet-analysis/figures/06_ml_feature_importance.png) — Random Forest Gini MDI and test set permutation importance.
-* [07_clustering_elbow_and_silhouette.png](file:///c:/Users/DELL/OneDrive/Desktop/exoplanet-analysis/figures/07_clustering_elbow_and_silhouette.png) — Elbow method, Silhouette score, and GMM BIC/AIC curves.
-* [07_clustering_demographics.png](file:///c:/Users/DELL/OneDrive/Desktop/exoplanet-analysis/figures/07_clustering_demographics.png) — PCA 2D projection, physical Mass-Radius, Period-Radius, and Density-Radius clusters.
+All figures referenced in this analysis have been generated, verified, and saved to the [](figures) directory:
+* [01_data_preparation_overview.png](figures/01_data_preparation_overview.png) — Feature breakdown and mass provenance distribution.
+* [02_eda_physical_properties.png](figures/02_eda_physical_properties.png) — Mass, radius (Fulton gap), density, and empirical Mass-Radius diagram.
+* [02_eda_orbital_properties.png](figures/02_eda_orbital_properties.png) — Period, semi-major axis, Kepler's Third Law fit, and Neptune Desert.
+* [02_eda_host_star_relations.png](figures/02_eda_host_star_relations.png) — Giant planet metallicity effect and Habitable Zone insolation.
+* [02_eda_correlations.png](figures/02_eda_correlations.png) — Comprehensive Pearson and Spearman correlation matrices across planetary and stellar parameters.
+* [03_detection_method_comparison.png](figures/03_detection_method_comparison.png) — Transit vs. RV distributions and parameter space coverage.
+* [04_discovery_trends.png](figures/04_discovery_trends.png) — Historical timeline, cumulative space missions, and distance evolution.
+* [05_missing_data_analysis.png](figures/05_missing_data_analysis.png) — Systematic missingness by feature, method, era, and co-missingness heatmap.
+* [06_ml_model_comparison.png](figures/06_ml_model_comparison.png) — Regression benchmark (^2$, RMSE, MAE), parity plot, and residual distribution.
+* [06_ml_feature_importance.png](figures/06_ml_feature_importance.png) — Random Forest MDI (MSE reduction) and test set permutation importance.
+* [07_clustering_elbow_and_silhouette.png](figures/07_clustering_elbow_and_silhouette.png) — Elbow method, Silhouette score, and GMM BIC/AIC curves.
+* [07_clustering_demographics.png](figures/07_clustering_demographics.png) — PCA 2D projection, physical Mass-Radius, Period-Radius, and Density-Radius clusters.
+* [07_clustering_honest_assessment.png](figures/07_clustering_honest_assessment.png) — Comparative evaluation of clustering on measured-mass vs. full catalog exoplanet samples.
