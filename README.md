@@ -12,10 +12,10 @@ This repository provides a comprehensive computational pipeline and empirical an
 
 | Notebook / Report | Focus Areas | Key Output Artifacts |
 | :--- | :--- | :--- |
-| **[`data_collection.ipynb`](data_collection.ipynb)** | NASA TAP API automated query | [`exoplanet_data.csv`](exoplanet_data.csv) (703 raw columns) |
-| **[`01_data_preparation.ipynb`](01_data_preparation.ipynb)** | Feature selection, Keplerian derivations, missing value handling, mass provenance, and taxonomic classification | [`cleaned_exoplanet_data.csv`](cleaned_exoplanet_data.csv) (25 curated features)<br>[`figures/01_data_preparation_overview.png`](figures/01_data_preparation_overview.png) |
-| **[`02_exploratory_and_detection_analysis.ipynb`](02_exploratory_and_detection_analysis.ipynb)** | **EDA, Detection Biases, Discovery Trends & Missing Data**<br>• Fulton Radius Valley (~1.5–2.0 $R_\oplus$)<br>• Period-Radius demographics & Neptune Desert<br>• Giant planet-metallicity correlation<br>• Transit vs. Radial Velocity KS/MWU hypothesis tests<br>• Space telescope eras (*Kepler*, *TESS*, *Gaia*)<br>• Systematic MNAR missingness analysis | [`figures/02_eda_physical_properties.png`](figures/02_eda_physical_properties.png)<br>[`figures/02_eda_orbital_properties.png`](figures/02_eda_orbital_properties.png)<br>[`figures/02_eda_host_star_relations.png`](figures/02_eda_host_star_relations.png)<br>[`figures/03_detection_method_comparison.png`](figures/03_detection_method_comparison.png)<br>[`figures/04_discovery_trends.png`](figures/04_discovery_trends.png)<br>[`figures/05_missing_data_analysis.png`](figures/05_missing_data_analysis.png) |
-| **[`03_machine_learning_analysis.ipynb`](03_machine_learning_analysis.ipynb)** | **Machine Learning: Prediction & Clustering**<br>• Multi-model regression benchmark for planet mass $\log_{10}(M_p)$ (Ridge, Lasso, $k$-NN, SVR, Random Forest, HistGradientBoosting)<br>• Permutation feature importance & residual analysis<br>• Unsupervised $K$-Means & Gaussian Mixture Models ($k=4$)<br>• Physical demographic cluster recovery | [`figures/06_ml_model_comparison.png`](figures/06_ml_model_comparison.png)<br>[`figures/06_ml_feature_importance.png`](figures/06_ml_feature_importance.png)<br>[`figures/07_clustering_elbow_and_silhouette.png`](figures/07_clustering_elbow_and_silhouette.png)<br>[`figures/07_clustering_demographics.png`](figures/07_clustering_demographics.png) |
+| **[`data_collection.ipynb`](data_collection.ipynb)** | NASA TAP API automated query; dataset suitability check (size, column types, missing values, outliers) | [`exoplanet_data.csv`](exoplanet_data.csv) (703 raw columns) |
+| **[`01_data_preparation.ipynb`](01_data_preparation.ipynb)** | Feature selection, Keplerian derivations, missing value handling, mass provenance, and taxonomic classification<br>• Measurement-scale classification, range & feasibility screening, missing-data mechanism (MCAR / MAR / MNAR, Little's test), imputation comparison, transformation diagnostics | [`cleaned_exoplanet_data.csv`](cleaned_exoplanet_data.csv) (25 curated features)<br>[`figures/01_data_preparation_overview.png`](figures/01_data_preparation_overview.png) |
+| **[`02_exploratory_and_detection_analysis.ipynb`](02_exploratory_and_detection_analysis.ipynb)** | **EDA, Detection Biases, Discovery Trends & Missing Data**<br>• Fulton Radius Valley (~1.5–2.0 $R_\oplus$)<br>• Period-Radius demographics & Neptune Desert<br>• Giant planet-metallicity correlation<br>• Transit vs. Radial Velocity KS/MWU hypothesis tests<br>• Space telescope eras (*Kepler*, *TESS*, *Gaia*)<br>• Systematic MNAR missingness analysis<br>• Statistical measures, outlier detection (IQR, Z-score, Mahalanobis, Isolation Forest), distribution fitting, contingency analysis, time-series diagnostics | [`figures/02_eda_physical_properties.png`](figures/02_eda_physical_properties.png)<br>[`figures/02_eda_orbital_properties.png`](figures/02_eda_orbital_properties.png)<br>[`figures/02_eda_host_star_relations.png`](figures/02_eda_host_star_relations.png)<br>[`figures/03_detection_method_comparison.png`](figures/03_detection_method_comparison.png)<br>[`figures/04_discovery_trends.png`](figures/04_discovery_trends.png)<br>[`figures/05_missing_data_analysis.png`](figures/05_missing_data_analysis.png) |
+| **[`03_machine_learning_analysis.ipynb`](03_machine_learning_analysis.ipynb)** | **Machine Learning: Prediction & Clustering**<br>• Multi-model regression benchmark for planet mass $\log_{10}(M_p)$ (Ridge, Lasso, $k$-NN, SVR, Random Forest, HistGradientBoosting)<br>• Permutation feature importance & residual analysis<br>• Unsupervised $K$-Means & Gaussian Mixture Models ($k=4$)<br>• Physical demographic cluster recovery<br>• Baseline & decision-tree models, feature selection (filter / wrapper / embedded), sensitivity analysis, classification metrics | [`figures/06_ml_model_comparison.png`](figures/06_ml_model_comparison.png)<br>[`figures/06_ml_feature_importance.png`](figures/06_ml_feature_importance.png)<br>[`figures/07_clustering_elbow_and_silhouette.png`](figures/07_clustering_elbow_and_silhouette.png)<br>[`figures/07_clustering_demographics.png`](figures/07_clustering_demographics.png) |
 | **[`FINAL_REPORT.md`](FINAL_REPORT.md)** | **Final Synthesis & Astrophysical Evaluation**<br>• Executive summary and core astrophysical patterns<br>• Observational bias modeling and selection functions<br>• ML benchmark evaluation and cluster demographics<br>• Limitations, observational horizons, and upcoming missions | Comprehensive synthesis report |
 
 ---
@@ -33,6 +33,8 @@ This repository provides a comprehensive computational pipeline and empirical an
   * *Radial Velocity*: Biased toward massive planets ($M_p \sim 257\,M_\oplus$) at wider separations ($P \sim 111$ days) due to Doppler velocity semi-amplitude scaling ($K \propto M_p \sin i / \sqrt{a}$).
 
 ### 3. Machine Learning Mass Prediction Benchmark
+**What is being predicted?** The model predicts a planet's **mass** (as $\log_{10}(M_p)$, in Earth masses) from properties that are easier to measure: its **radius**, **orbital period and semi-major axis**, the **stellar flux it receives (insolation)**, and the **host star's** temperature, mass, metallicity and distance, plus the number of planets in the system. Mass is hard to measure directly (it needs radial-velocity or timing data), so a good predictor can estimate masses for the thousands of planets that only have a measured radius. Training uses only planets whose mass was actually measured.
+
 Trained strictly on **2,796 empirical dynamical mass measurements** (preventing circular data leakage from theoretical M-R relations):
 
 | Model | 5-Fold CV $R^2$ | Test Set $R^2$ | Test RMSE ($\log_{10}$ dex) | Test MAE ($\log_{10}$ dex) | Test MedAE ($\log_{10}$ dex) |
@@ -52,6 +54,19 @@ Unsupervised $K$-Means and GMM clustering was systematically evaluated across tw
 * **Measured-Mass Subsample ($N=2,904$)**: Silhouette analysis identifies $k=3$ as optimal ($s=0.497$), cleanly resolving **Sub-Neptunes / Neptunes** ($N=1,168$), **Distant Cold Gas Giants** ($N=742$), and **Irradiated Hot Jupiters** ($N=994$). *Note: small rocky planets lack sufficient dynamical mass measurements in the archive to emerge as an isolated cluster.*
 * **Full Photometric Catalog ($N=5,756$)**: Clustering on 3 complete parameters ($R_p, P, S$) identifies $k=2$ as optimal ($s=0.496$), capturing the overarching cosmic bifurcation into **Small Volatile Worlds** ($N=4,693$) and **Gas Giants** ($N=1,063$).
 
+### 5. Missing Data & Outliers
+* **Missingness is not random**: Little's MCAR test rejects MCAR ($\chi^2 = 6{,}287$, 185 dof, $p \approx 0$). Missing orbital and stellar values depend on the observed discovery method and year (**MAR**), e.g. microlensing planets are $\approx 99\%$ missing in these features. MNAR cannot be tested from the data.
+* **Imputation comparison** (stellar metallicity, 10% of observed values hidden and recovered): KNN (RMSE $0.159$ dex) < MICE ($0.173$) < mean / median ($0.183$). Mean / median imputation also shrinks the standard deviation ($0.189 \to 0.178$). Physics-based recovery (Kepler's law) remains the primary treatment; remaining gaps stay `NaN`.
+* **Outliers**: on raw data the IQR rule flags $13$–$17\%$ of masses, periods and insolations while the Z-score flags almost none (the extreme values inflate the standard deviation); after $\log_{10}$ both rules largely agree. Mahalanobis distance and Isolation Forest agree on $203$ multivariate outliers, which are real, unusual systems and are therefore **kept**.
+
+### 6. Distributions, Time Series & Model Diagnostics
+* **Distributions**: orbital period is best described by a **log-normal** distribution (lowest AIC), which justifies the $\log_{10}$ transform; radius is bimodal, so no single unimodal distribution fits; planets per host star are *not* Poisson-distributed (planets in one system are clustered).
+* **Discovery time series**: annual counts are non-stationary (ADF $p = 0.30$) and become stationary after differencing; two batch-release bursts (2014: $872$, 2016: $1{,}504$ planets) dominate the irregular component.
+* **Baseline & decision tree**: a mean-predictor baseline gives $R^2 \approx 0$; a fully grown decision tree overfits (train $R^2 = 1.00$ vs. test $0.73$), the tuned tree reaches $0.84$, and Random Forest / HistGradientBoosting reach $0.87$ / $0.88$.
+* **Feature selection**: planet radius and semi-major axis are selected by all five selectors; period and semi-major axis are almost collinear ($r = 0.996$, Kepler's third law) yet dropping one leaves the Random Forest CV $R^2$ unchanged ($0.860$).
+* **Sensitivity analysis**: five outlier $\times$ imputation pipelines (including planets that were previously dropped as incomplete) all give CV $R^2$ between $0.84$ and $0.87$.
+* **Giant-planet classification** (orbit + host-star features only): Random Forest reaches precision $0.83$, recall $0.84$, F1 $0.84$, ROC-AUC $0.94$; the majority-class baseline has $66\%$ accuracy but F1 $=0$.
+
 ---
 
 ## 🛠️ Reproduction & Execution
@@ -59,7 +74,8 @@ Unsupervised $K$-Means and GMM clustering was systematically evaluated across tw
 ### Prerequisites
 Install the required scientific packages:
 ```bash
-pip install numpy pandas scipy scikit-learn matplotlib seaborn statsmodels nbformat nbconvert ipykernel
+pip install -r requirements.txt
+# or: pip install numpy pandas scipy scikit-learn matplotlib seaborn statsmodels missingno nbformat nbconvert ipykernel
 ```
 
 ### Running the Analysis
