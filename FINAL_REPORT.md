@@ -212,3 +212,46 @@ All figures referenced in this analysis have been generated, verified, and saved
 * [07_clustering_elbow_and_silhouette.png](figures/07_clustering_elbow_and_silhouette.png) — Elbow method, Silhouette score, and GMM BIC/AIC curves.
 * [07_clustering_demographics.png](figures/07_clustering_demographics.png) — PCA 2D projection, physical Mass-Radius, Period-Radius, and Density-Radius clusters.
 * [07_clustering_honest_assessment.png](figures/07_clustering_honest_assessment.png) — Comparative evaluation of clustering on measured-mass vs. full catalog exoplanet samples.
+* [08_missingno_diagnostics.png](figures/08_missingno_diagnostics.png) — `missingno` bar, matrix, heatmap and dendrogram.
+* [09_imputation_comparison.png](figures/09_imputation_comparison.png) — Deletion / mean / median / KNN / MICE comparison and masked-value recovery error.
+* [10_transformation_comparison.png](figures/10_transformation_comparison.png) — Raw vs. log₁₀ vs. Yeo-Johnson distributions.
+* [11_qq_normality_diagnostics.png](figures/11_qq_normality_diagnostics.png) — Normal Q-Q plots, raw vs. log₁₀.
+* [12_outlier_detection_univariate.png](figures/12_outlier_detection_univariate.png) — Box plots (raw, log₁₀) and outlier treatments.
+* [13_outlier_multivariate_mahalanobis.png](figures/13_outlier_multivariate_mahalanobis.png) — Mahalanobis distance, Isolation Forest and univariate outliers.
+* [14_distribution_fitting.png](figures/14_distribution_fitting.png) — Normal / Log-normal / Gamma / Exponential fits; Binomial, Geometric, Poisson models.
+* [15_categorical_and_ecdf_plots.png](figures/15_categorical_and_ecdf_plots.png) — Violin, ECDF, contingency-matrix heatmap and count plot.
+* [16_discovery_time_series_diagnostics.png](figures/16_discovery_time_series_diagnostics.png) — Trend, cyclic × irregular component, ACF / PACF.
+* [17_feature_selection_and_collinearity.png](figures/17_feature_selection_and_collinearity.png) — Correlation matrix, VIF and filter / wrapper / embedded selection matrix.
+* [18_baseline_tree_and_model_comparison.png](figures/18_baseline_tree_and_model_comparison.png) — Overfitting curve, models vs. baseline, tuned decision tree.
+* [19_sensitivity_analysis.png](figures/19_sensitivity_analysis.png) — Outlier × missing-value pipelines (CV R²).
+* [20_classification_giant_planets.png](figures/20_classification_giant_planets.png) — Confusion matrix, ROC curves and feature importance for giant-planet classification.
+* [21_clustering_elbow_pca.png](figures/21_clustering_elbow_pca.png) — Elbow curves and PCA projections coloured by cluster and by class.
+
+
+---
+
+## 10. Extended Statistical Diagnostics & Model Evaluation
+
+This section adds further diagnostics to sections 1–9 (which are unchanged). Code and figures are in the notebook sections named below.
+
+### 10.1 Data screening, missing-data mechanism & transformation — Notebook 01 §1.2b, §1.4b, §1.6
+* **Dimension / type / duplication:** 6,445 observations × 25 curated features (20 numerical, 5 categorical); no duplicated records or primary keys. Features were classified by **measurement scale** (5 nominal, 6 interval, 14 ratio), so coefficients of variation are computed only for ratio-scale features.
+* **Missing-data mechanism:** at most 16.5 % missing per feature. **Little's MCAR test rejects MCAR** (χ² = 6,287, dof 185, p ≈ 0), and χ² tests / Welch t-tests show that missingness depends on the *observed* discovery method and year ⇒ **MAR** (MNAR cannot be tested from the data). Microlensing planets are ≈ 99 % missing in orbital and stellar features.
+* **Treatment comparison (st_met):** mean / median imputation shrink the standard deviation (0.189 → 0.178); in a masked-value recovery test **KNN (k = 5) has the lowest RMSE (0.159 dex)** vs. MICE 0.173 and mean / median 0.183. Because the mechanism is not MCAR, the exported dataset keeps `NaN` where physics cannot recover a value.
+* **Transformation:** raw skewness reaches 77.9 (period) and 56.6 (insolation); log₁₀ reduces |skew| to ≤ 1.4 and keeps physical meaning; Yeo-Johnson / quantile transforms reach ≈ 0 but lose units.
+
+### 10.2 Statistical measures, outliers & distributions — Notebook 02 §2.0, §2.6–§2.8
+* Mean ≫ median > mode for all skewed variables (e.g. period: mode ≈ 5 d, median 10.6 d, mean 7.0×10⁴ d); trimmed and geometric means are the robust summaries.
+* **Outliers:** on raw data the IQR rule flags 13–17 % of masses, periods and insolations while the Z-score flags almost none (**masking effect**); after log₁₀ both rules largely agree. **Mahalanobis** (338 planets, 5.9 %) and **Isolation Forest** (same contamination) agree on 203 planets; 84 planets are outliers only in combination. The most extreme objects are genuine (planets around ≈ 30,000–40,000 K hosts and imaged planets around ≈ 0.015 M☉ hosts) and are **kept**.
+* **Distributions:** orbital period → **log-normal** (lowest AIC); radius is bimodal so no unimodal distribution fits; planets per host star are not Poisson (χ² = 558.6, p ≈ 10⁻¹²¹). Planet type and discovery method are strongly associated (**Cramér's V = 0.41**).
+
+### 10.3 Discovery time series — Notebook 02 §4.2
+* Annual discovery counts are **non-stationary** (ADF p = 0.30) and become stationary after first differencing (p ≈ 0). The cyclic × irregular component is dominated by two bursts (2014: 872 planets; 2016: 1,504 planets). A lag regression does **not** beat the persistence baseline on the 2020–2025 test years (MAE 110.6 vs. 114.7; n = 6, illustrative).
+
+### 10.4 Model building & evaluation — Notebook 03 §6.2b–§7.3
+* **What is predicted:** the regression target is planet mass, log₁₀(M_p), from radius, orbital period / semi-major axis, insolation and host-star properties (§6.1).
+* **Baseline → Linear Regression → Decision Tree → Random Forest:** baseline R² ≈ 0 (RMSE 1.01 dex); fully grown tree train R² 1.00 vs. test 0.73 (overfitting), tuned tree (`GridSearchCV`) test R² 0.84; Random Forest 0.87 and HistGradientBoosting 0.88 remain best.
+* **Feature selection (filter / wrapper / embedded):** `log_pl_rade` and `log_pl_orbsmax` are chosen by all five selectors. `log_pl_orbper` and `log_pl_orbsmax` are almost collinear (r = 0.996, VIF ≈ 1,160 — Kepler's third law), but removing one leaves the Random Forest CV R² unchanged (0.860).
+* **Sensitivity analysis:** five pipelines (outlier treatment × imputation, including 586 previously discarded incomplete planets) give CV R² = 0.84–0.87 — the conclusions are robust to the cleaning choices.
+* **Clustering:** elbow + PCA (95.7 % variance in two components) and a contingency matrix against `planet_type` (ARI = 0.131, NMI = 0.258) confirm that K-means yields a coarse regime split, not the six-class taxonomy.
+* **Classification metrics (supplementary):** predicting giant planets from orbital and host-star features, Random Forest reaches precision 0.83, recall 0.84, F1 = 0.84, ROC-AUC = 0.94, whereas the majority-class baseline has accuracy 0.66 but F1 = 0 (the accuracy paradox).
