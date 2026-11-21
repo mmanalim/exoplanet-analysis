@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ExoLens — look up any planet beyond our Sun</title>
+  <meta name="description" content="Type the name of a confirmed exoplanet to see its facts and a machine-learning estimate of its mass.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Allura&family=Outfit:wght@200..700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="is-home">
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div class="veil" aria-hidden="true"></div>
+
+  <div class="rail rail--l" aria-hidden="true"><span>Inspired by light. Powered by data.</span></div>
+  <div class="rail rail--r" aria-hidden="true"><span>Every confirmed planet, one search away.</span></div>
+
+  <a class="skip" href="#view">Skip to content</a>
+
+  <div class="page">
+    <header class="top">
+      <a class="brand" href="#/" aria-label="ExoLens, go to the search page">
+        <svg class="spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C12.9 7.2 16.8 11.1 24 12C16.8 12.9 12.9 16.8 12 24C11.1 16.8 7.2 12.9 0 12C7.2 11.1 11.1 7.2 12 0Z"/></svg>
+        <span>ExoLens</span>
+      </a>
+
+      <nav class="nav" id="nav" aria-label="Main">
+        <a href="#/" data-nav="home">Search</a>
+        <a href="#/explore" data-nav="explore">Browse planets</a>
+        <a href="#/guide" data-nav="guide">How it works</a>
+        <a href="#/about" data-nav="about">About the model</a>
+      </nav>
+
+      <form class="sform sform--mini" id="miniSearch" role="search" autocomplete="off">
+        <label class="sr-only" for="qMini">Search for a planet by name</label>
+        <div class="field">
+          <svg class="glass-icon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.5 15.5 21 21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="qMini" type="text" inputmode="search" spellcheck="false" placeholder="Search a planet" role="combobox" aria-expanded="false" aria-autocomplete="list" aria-haspopup="listbox">
+        </div>
+        <ul class="sug" role="listbox" hidden></ul>
+      </form>
+
+      <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="nav">
+        <span class="menu-ico" aria-hidden="true"></span><span class="menu-txt">Menu</span>
+      </button>
+    </header>
+
+    <main id="view" tabindex="-1"></main>
+
+    <footer class="foot">
+      <div>
+        <p class="foot-brand"><svg class="spark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0C12.9 7.2 16.8 11.1 24 12C16.8 12.9 12.9 16.8 12 24C11.1 16.8 7.2 12.9 0 12C7.2 11.1 11.1 7.2 12 0Z"/></svg> ExoLens</p>
+        <p>A lookup tool for confirmed planets that orbit other stars. Planet data comes from the NASA Exoplanet Archive. Mass estimates come from a machine-learning model, so treat them as informed guesses, not measurements.</p>
+      </div>
+    </footer>
+  </div>
+
+  <div class="tip" id="tip" hidden></div>
+  <script src="/static/js/bg.js"></script>
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
