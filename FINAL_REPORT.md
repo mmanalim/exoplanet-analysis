@@ -12,11 +12,11 @@ Since the discovery of the first exoplanets orbiting the pulsar PSR B1257+12 in 
 
 This investigation delivers an end-to-end empirical and machine learning analysis of the NASA Exoplanet Archive composite table (`pscomppars`):
 1. **Data Curation & Keplerian Derivation**: We down-selected 703 raw columns to 25 core astrophysical parameters, derived 484 missing semi-major axes via Kepler's Third Law, recovered 75 missing planetary bulk densities, and instituted a rigorous mass-provenance flag (`is_measured_mass`) to prevent data leakage in predictive modeling.
-2. **Astrophysical Demographics**: We confirmed the bimodal distribution of small planet radii separating rocky **Super-Earths** from volatile-rich **Sub-Neptunes** via the **Fulton Gap** ($1.5 - 2.0\,R_\oplus$), verified Kepler's Third Law ($P^2 \propto a^3$, $R^2 = 0.9998$), and demonstrated the giant-planet metallicity correlation ($[Fe/H] = +0.07$ vs. $-0.01$ for rocky worlds).
+2. **Astrophysical Demographics**: We confirmed the bimodal distribution of small planet radii separating rocky **Super-Earths** from volatile-rich **Sub-Neptunes** via the **Fulton Gap** ($1.5 - 2.0\,R_\oplus$), verified Kepler's Third Law ($P^2 \propto a^3$, $R^2 = 0.9900$), and demonstrated the giant-planet metallicity correlation ($[Fe/H] = +0.07$ vs. $-0.01$ for rocky worlds).
 3. **Detection Method Biases**: Kolmogorov-Smirnov and Mann-Whitney U tests ($p < 10^{-100}$) demonstrate that Transit and Radial Velocity (RV) catalogs represent distinct observational windows rather than the true underlying galactic population.
 4. **Discovery Trends**: We mapped the 30-year evolutionary trajectory of exoplanet detection, charting the shift from early ground-based Doppler Hot Jupiters to the *Kepler* space photometer revolution and *TESS* all-sky bright-star survey.
-5. **Machine Learning Mass Prediction**: Training strictly on 2,796 empirical dynamical masses, ensemble tree regressors (**HistGradientBoosting** and **Random Forest**) achieve $R^2 = 0.871 - 0.880$ with a Root Mean Squared Error (RMSE) of $0.350 - 0.363$ dex and a Median Absolute Error (MedAE) of $0.106$ dex ($\sim 27\%$ relative median error), dominated by planetary radius ($>70\%$ importance) and stellar insolation.
-6. **Unsupervised Demographic Clustering**: Unsupervised $K$-Means and Gaussian Mixture Models ($k=4$, Silhouette = $0.455$) naturally recover the 4 primary planetary families without human intervention: **Rocky Super-Earths**, **Volatile Sub-Neptunes**, **Cold Jovian Gas Giants**, and **Irradiated Hot Jupiters**.
+5. **Machine Learning Mass Prediction**: Training strictly on 2,796 empirical dynamical masses, ensemble tree regressors (**HistGradientBoosting** and **Random Forest**) achieve $R^2 = 0.871 - 0.880$ with a Root Mean Squared Error (RMSE) of $0.351 - 0.363$ dex and a Median Absolute Error (MedAE) of $0.107$ dex ($\sim 28\%$ relative median error), dominated by planetary radius ($>80\%$ MDI importance) and stellar insolation.
+6. **Unsupervised Demographic Clustering**: Unsupervised $K$-Means evaluated across empirical-mass ($N=2,904$, optimal $k=3$, Silhouette = $0.497$) and full-catalog ($N=5,756$, optimal $k=2$, Silhouette = $0.496$) samples reveals that while heuristic 4-cluster partitioning yields lower silhouette ($s=0.455$), data-driven clustering cleanly isolates **Sub-Neptunes**, **Distant Cold Jovian Giants**, and **Irradiated Hot Jupiters**, highlighting observational selection limits against low-mass rocky worlds with measured dynamical masses.
 
 ---
 
@@ -41,10 +41,18 @@ This demographic valley is the definitive empirical fingerprint of atmospheric m
 * **Photoevaporation**: Extreme ultraviolet (XUV) and X-ray radiation from the young active host star strips the primordial hydrogen-helium envelopes from planets below a threshold core mass ($\lesssim 5-8\,M_\oplus$), leaving bare rocky cores (Owen & Wu 2013).
 * **Core-Powered Mass Loss**: The internal cooling luminosity and residual radioactive decay within the planet's own iron-silicate core pushes the atmosphere outward, causing hydrodynamic escape on gigayear timescales (Ginzburg et al. 2018).
 
+<p align="center">
+  <img src="figures/02_eda_physical_properties.png" alt="Physical Properties of Confirmed Exoplanets" width="850"/>
+</p>
+
 ### 2.2 The Sub-Jovian ("Neptune") Desert
 On the Period-Radius and Period-Mass planes ($P < 3-5$ days, $R_p \in [2, 8]\,R_\oplus$), there is an absence of intermediate-sized planets. This "Neptune Desert" arises from a combination of:
 1. **Severe Atmospheric Erosion**: Intermediate-mass planets ($10-50\,M_\oplus$) lack sufficient gravitational potential wells to retain volatile envelopes against extreme insolation ($S > 1000\,S_\oplus$) at sub-5-day orbits, causing them to evaporate down to stripped rocky cores.
 2. **High-Eccentricity Tidal Migration**: Gas giants undergoing Kozai-Lidov or disk migration either park as massive Hot Jupiters ($M_p \gtrsim 100\,M_\oplus$, which resist photoevaporation due to high surface gravity) or disintegrate completely.
+
+<p align="center">
+  <img src="figures/02_eda_orbital_properties.png" alt="Orbital Properties and Kepler's Third Law" width="850"/>
+</p>
 
 ### 2.3 The Empirical Mass-Radius Relation & Density Transitions
 Across six orders of magnitude in mass, the empirical Mass-Radius relation exhibits three distinct power-law regimes:
@@ -58,6 +66,12 @@ Our analysis confirms the **Fischer & Valenti (2005)** correlation:
 * Host stars of **Terrestrial** and **Super-Earth** planets possess solar or sub-solar metallicity: $[Fe/H]_{\text{median}} = -0.01$ dex.
 
 This provides empirical validation of the **Core Accretion Model**: Protoplanetary disks rich in heavy elements form solid $10\,M_\oplus$ proto-cores rapidly before the circumstellar gas disk dissipates ($\sim 3-5$ Myr), triggering runaway gas accretion. In metal-poor disks, core formation is too sluggish, yielding only small rocky or icy planets.
+
+<p align="center">
+  <img src="figures/02_eda_host_star_relations.png" alt="Relationships with Host-Star Properties" width="850"/>
+  <br/>
+  <img src="figures/02_eda_correlations.png" alt="Exoplanet Parameter Correlations" width="850"/>
+</p>
 
 ---
 
@@ -75,12 +89,17 @@ The 6,445 cataloged exoplanets represent a heavily filtered view of true galacti
 | **Direct Imaging** | Planet-to-star flux ratio | $F_p / F_* \propto \frac{R_p^2 L_p}{a^2 L_*}$ | • Limited by inner working angle of coronagraph<br>• Detects only young, self-luminous, wide-orbit ($a > 10-100$ AU) giant planets | Misses all inner planetary systems; relies on theoretical cooling tracks to estimate mass. |
 
 ### 3.2 Quantitative Hypothesis Testing (Transit vs. RV)
-Applying non-parametric statistical hypothesis tests on the two largest populations:
-* **Planet Radius**: Transit Median = $2.31\,R_\oplus$ vs. RV Median = $12.30\,R_\oplus$ ($KS = 0.742, p < 10^{-150}$).
-* **Planet Mass**: Transit Median = $6.48\,M_\oplus$ vs. RV Median = $257.4\,M_\oplus$ ($KS = 0.612, p < 10^{-120}$).
-* **Orbital Period**: Transit Median = $8.44$ days vs. RV Median = $111.4$ days ($KS = 0.589, p < 10^{-110}$).
+Applying non-parametric statistical hypothesis tests on the two largest populations ($N_{\text{Transit}} = 4{,}781$, $N_{\text{RV}} = 1{,}203$):
+* **Planet Radius**: Transit Median = $2.46\,R_\oplus$ vs. RV Median = $12.60\,R_\oplus$ ($KS = 0.518, p = 1.01 \times 10^{-231}$; MWU $p = 3.26 \times 10^{-206}$).
+* **Planet Mass**: Transit Median = $6.96\,M_\oplus$ vs. RV Median = $348.80\,M_\oplus$ ($KS = 0.494, p = 2.86 \times 10^{-214}$; MWU $p = 5.13 \times 10^{-245}$).
+* **Orbital Period**: Transit Median = $7.97$ days vs. RV Median = $305.50$ days ($KS = 0.584, p = 3.11 \times 10^{-307}$; MWU $p = 1.57 \times 10^{-304}$).
+* **Semi-Major Axis**: Transit Median = $0.07$ AU vs. RV Median = $0.94$ AU ($KS = 0.573, p = 4.10 \times 10^{-294}$; MWU $p = 1.97 \times 10^{-283}$).
 
 Both the **Kolmogorov-Smirnov (KS)** and **Mann-Whitney U (MWU)** tests return $p \approx 0.0$, formally rejecting the null hypothesis that Transit and Radial Velocity samples originate from the same parent distribution.
+
+<p align="center">
+  <img src="figures/03_detection_method_comparison.png" alt="Detection Method Comparison" width="850"/>
+</p>
 
 ---
 
@@ -111,7 +130,7 @@ MISSING DATA PROFILE:
 Parameter                     Missing Pct    Root Cause
 ----------------------------------------------------------------------------------
 Empirical Dynamical Mass (Tr)    63.4%       Kepler targets too faint for ground Doppler follow-up
-Planetary Radius (RV)            41.8%       Absence of transit alignment along line of sight
+Planetary Radius (RV)             3.1%       Absence of transit alignment (literature/composite values fill 96.9%)
 Orbital Eccentricity             16.5%       Circular orbits assumed (e=0) for low-SNR transits
 Stellar Metallicity              10.8%       Faint stars lack high-resolution spectra
 Equilibrium Temp / Insolation     8.3%       Requires combined star-planet distance + Teff + R*
@@ -119,8 +138,12 @@ Stellar Teff / Radius             4.8%       Pre-Gaia photometric approximations
 ----------------------------------------------------------------------------------
 ```
 
-* **The Mass-Radius Dichotomy**: Transit surveys excel at measuring $R_p$ while RV surveys measure $M_p \sin i$. Consequently, $63.4\%$ of transit-discovered planets lack empirical dynamical mass measurements (prompting the archive to supply theoretical M-R relationship estimates).
+* **The Mass-Radius Dichotomy**: Transit surveys excel at measuring $R_p$ while RV surveys measure $M_p \sin i$. Consequently, $63.4\%$ of transit-discovered planets lack empirical dynamical mass measurements (prompting the archive to supply theoretical M-R relationship estimates), while only $3.1\%$ of RV planets lack radius entries in the composite catalog.
 * **The Gaia Resolution**: Prior to *Gaia* DR2 (2018), stellar radii, luminosities, and system distances suffered high uncertainties ($>20-30\%$). *Gaia*'s microarcsecond parallaxes resolved stellar luminosities, enabling precision radii determination for thousands of transiting planets.
+
+<p align="center">
+  <img src="figures/05_missing_data_analysis.png" alt="Systematic Missing Data Analysis" width="850"/>
+</p>
 
 ---
 
@@ -133,17 +156,23 @@ To prevent data leakage, we trained and evaluated our models on the **2,796 plan
 
 | Model Architecture | 5-Fold CV $R^2$ (Mean $\pm$ Std) | Test Set $R^2$ | Test RMSE ($\log_{10}$ dex) | Test MAE ($\log_{10}$ dex) | Test MedAE ($\log_{10}$ dex) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **HistGradientBoosting** | **zsh.861 \pm 0.018* | **zsh.880* | **zsh.351* | **zsh.225* | **zsh.135* |
-| **Random Forest Regressor** | **zsh.860 \pm 0.023* | **zsh.871* | **zsh.363* | **zsh.218* | **zsh.107* |
-| **Support Vector Regressor (SVR-RBF)** | zsh.817 \pm 0.031$ | zsh.847$ | zsh.395$ | zsh.279$ | zsh.192$ |
-| **569XNearest Neighbors (569XNN)** | zsh.792 \pm 0.037$ | zsh.801$ | zsh.451$ | zsh.323$ | zsh.232$ |
-| **Ridge Regression (L2)** | zsh.761 \pm 0.022$ | zsh.795$ | zsh.458$ | zsh.349$ | zsh.288$ |
-| **Lasso Regression (L1)** | zsh.760 \pm 0.021$ | zsh.793$ | zsh.460$ | zsh.353$ | zsh.293$ |
+| **HistGradientBoosting** | **$0.861 \pm 0.018$** | **$0.880$** | **$0.351$** | **$0.225$** | **$0.135$** |
+| **Random Forest Regressor** | **$0.860 \pm 0.023$** | **$0.871$** | **$0.363$** | **$0.218$** | **$0.107$** |
+| **Support Vector Regressor (SVR-RBF)** | $0.817 \pm 0.031$ | $0.847$ | $0.395$ | $0.279$ | $0.192$ |
+| **$k$-Nearest Neighbors ($k$-NN)** | $0.792 \pm 0.037$ | $0.801$ | $0.451$ | $0.323$ | $0.232$ |
+| **Ridge Regression (L2)** | $0.761 \pm 0.022$ | $0.795$ | $0.458$ | $0.349$ | $0.288$ |
+| **Lasso Regression (L1)** | $0.760 \pm 0.021$ | $0.793$ | $0.460$ | $0.353$ | $0.293$ |
 
 ### 6.2 Key Insights from Regression Modeling
 1. **Tree Ensembles Outperform Linear Baselines**: Gradient boosting and Random Forests achieve superior performance ($R^2 \approx 0.87 - 0.88$) because the physical Mass-Radius relation undergoes non-linear regime shifts (rocky $\rightarrow$ volatile $\rightarrow$ degenerate gas) that linear models cannot capture without manual piecewise splines.
-2. **Astrophysical Precision**: The Random Forest's **Median Absolute Error of $0.106$ dex** corresponds to predicting planetary mass within a factor of $10^{0.106} \approx 1.27$ (a **$27\%$ relative median error**), which is comparable to experimental observational measurement uncertainties for small exoplanets!
-3. **Feature Drivers**: Permutation importance reveals that **Planet Radius ($R_p$)** accounts for over $72\%$ of mass prediction variance. Secondary contributions stem from **Insolation Flux ($S$)** and **Semi-Major Axis ($a$)**, which inform the model whether the planet has retained a massive primordial hydrogen-helium envelope or experienced hydrodynamic stripping.
+2. **Astrophysical Precision**: The Random Forest's **Median Absolute Error of $0.107$ dex** corresponds to predicting planetary mass within a factor of $10^{0.107} \approx 1.28$ (a **$28\%$ relative median error**), which is comparable to experimental observational measurement uncertainties for small exoplanets!
+3. **Feature Drivers**: Random Forest MDI importance indicates that **Planet Radius ($R_p$)** accounts for $82.6\%$ of impurity reduction ($>72\%$ permutation importance variance drop). Secondary contributions stem from **Insolation Flux ($S$)** and **Semi-Major Axis ($a$)**, which inform the model whether the planet has retained a massive primordial hydrogen-helium envelope or experienced hydrodynamic stripping.
+
+<p align="center">
+  <img src="figures/06_ml_model_comparison.png" alt="Machine Learning Regression Benchmark" width="850"/>
+  <br/>
+  <img src="figures/06_ml_feature_importance.png" alt="Machine Learning Feature Importance" width="850"/>
+</p>
 
 ---
 
@@ -176,6 +205,12 @@ Subsample B (k=2, Sil=0.496):
 * **The Dual-Populations of the Galaxy (Subsample B)**: On the complete catalog ($N=5,756$), the algorithm clearly delineates the primary bi-modal divide of exoplanetary architectures: compact, volatile-bearing inner planets ($R_p \\sim 2.45\\,R_\\oplus$) versus expanded Jovian giants ($R_p \\sim 12.60\\,R_\\oplus$).
 * **Heuristic 4-Cluster Partitioning**: While four physical archetypes (Terrestrial, Sub-Neptune, Cold Jovian, Hot Jupiter) are well-established in astrophysics, forcing $k=4$ on mass-biased subsets yields lower silhouette scores ($s=0.455$). Honest data science demands presenting cluster results as data-driven groupings shaped by observational availability rather than absolute cosmic categories.
 
+<p align="center">
+  <img src="figures/07_clustering_honest_assessment.png" alt="Honest Clustering Assessment" width="850"/>
+  <br/>
+  <img src="figures/21_clustering_elbow_pca.png" alt="Clustering Diagnostics: Elbow and PCA" width="850"/>
+</p>
+
 ---
 
 ## 8. Limitations & Future Directions
@@ -198,7 +233,7 @@ Subsample B (k=2, Sil=0.496):
 
 ## 9. Figures Reference & Verification
 
-All figures referenced in this analysis have been generated, verified, and saved to the [](figures) directory:
+All figures referenced in this analysis have been generated, verified, and saved to the [`figures/`](figures) directory:
 * [01_data_preparation_overview.png](figures/01_data_preparation_overview.png) — Feature breakdown and mass provenance distribution.
 * [02_eda_physical_properties.png](figures/02_eda_physical_properties.png) — Mass, radius (Fulton gap), density, and empirical Mass-Radius diagram.
 * [02_eda_orbital_properties.png](figures/02_eda_orbital_properties.png) — Period, semi-major axis, Kepler's Third Law fit, and Neptune Desert.
@@ -207,11 +242,11 @@ All figures referenced in this analysis have been generated, verified, and saved
 * [03_detection_method_comparison.png](figures/03_detection_method_comparison.png) — Transit vs. RV distributions and parameter space coverage.
 * [04_discovery_trends.png](figures/04_discovery_trends.png) — Historical timeline, cumulative space missions, and distance evolution.
 * [05_missing_data_analysis.png](figures/05_missing_data_analysis.png) — Systematic missingness by feature, method, era, and co-missingness heatmap.
-* [06_ml_model_comparison.png](figures/06_ml_model_comparison.png) — Regression benchmark (^2$, RMSE, MAE), parity plot, and residual distribution.
+* [06_ml_model_comparison.png](figures/06_ml_model_comparison.png) — Regression benchmark ($R^2$, RMSE, MAE), parity plot, and residual distribution.
 * [06_ml_feature_importance.png](figures/06_ml_feature_importance.png) — Random Forest MDI (MSE reduction) and test set permutation importance.
-* [07_clustering_elbow_and_silhouette.png](figures/07_clustering_elbow_and_silhouette.png) — Elbow method, Silhouette score, and GMM BIC/AIC curves.
-* [07_clustering_demographics.png](figures/07_clustering_demographics.png) — PCA 2D projection, physical Mass-Radius, Period-Radius, and Density-Radius clusters.
-* [07_clustering_honest_assessment.png](figures/07_clustering_honest_assessment.png) — Comparative evaluation of clustering on measured-mass vs. full catalog exoplanet samples.
+* [07_clustering_honest_assessment.png](figures/07_clustering_honest_assessment.png) — Comparative evaluation of clustering on measured-mass ($k=3$) vs. full catalog ($k=2$) exoplanet samples.
+* [07_clustering_elbow_and_silhouette.png](figures/07_clustering_elbow_and_silhouette.png) — Exploratory elbow method, Silhouette score, and GMM BIC/AIC curves (heuristic $k=4$ baseline).
+* [07_clustering_demographics.png](figures/07_clustering_demographics.png) — Exploratory PCA 2D projection, physical Mass-Radius, Period-Radius, and Density-Radius clusters (heuristic $k=4$ baseline).
 * [08_missingno_diagnostics.png](figures/08_missingno_diagnostics.png) — `missingno` bar, matrix, heatmap and dendrogram.
 * [09_imputation_comparison.png](figures/09_imputation_comparison.png) — Deletion / mean / median / KNN / MICE comparison and masked-value recovery error.
 * [10_transformation_comparison.png](figures/10_transformation_comparison.png) — Raw vs. log₁₀ vs. Yeo-Johnson distributions.
@@ -240,13 +275,39 @@ This section adds further diagnostics to sections 1–9 (which are unchanged). C
 * **Treatment comparison (st_met):** mean / median imputation shrink the standard deviation (0.189 → 0.178); in a masked-value recovery test **KNN (k = 5) has the lowest RMSE (0.159 dex)** vs. MICE 0.173 and mean / median 0.183. Because the mechanism is not MCAR, the exported dataset keeps `NaN` where physics cannot recover a value.
 * **Transformation:** raw skewness reaches 77.9 (period) and 56.6 (insolation); log₁₀ reduces |skew| to ≤ 1.4 and keeps physical meaning; Yeo-Johnson / quantile transforms reach ≈ 0 but lose units.
 
+<p align="center">
+  <img src="figures/01_data_preparation_overview.png" alt="Data Preparation Overview" width="800"/>
+  <br/>
+  <img src="figures/08_missingno_diagnostics.png" alt="Missingno Diagnostics" width="800"/>
+  <br/>
+  <img src="figures/09_imputation_comparison.png" alt="Imputation Comparison" width="800"/>
+  <br/>
+  <img src="figures/10_transformation_comparison.png" alt="Transformation Comparison" width="800"/>
+</p>
+
 ### 10.2 Statistical measures, outliers & distributions — Notebook 02 §2.0, §2.6–§2.8
 * Mean ≫ median > mode for all skewed variables (e.g. period: mode ≈ 5 d, median 10.6 d, mean 7.0×10⁴ d); trimmed and geometric means are the robust summaries.
 * **Outliers:** on raw data the IQR rule flags 13–17 % of masses, periods and insolations while the Z-score flags almost none (**masking effect**); after log₁₀ both rules largely agree. **Mahalanobis** (338 planets, 5.9 %) and **Isolation Forest** (same contamination) agree on 203 planets; 84 planets are outliers only in combination. The most extreme objects are genuine (planets around ≈ 30,000–40,000 K hosts and imaged planets around ≈ 0.015 M☉ hosts) and are **kept**.
 * **Distributions:** orbital period → **log-normal** (lowest AIC); radius is bimodal so no unimodal distribution fits; planets per host star are not Poisson (χ² = 558.6, p ≈ 10⁻¹²¹). Planet type and discovery method are strongly associated (**Cramér's V = 0.41**).
 
+<p align="center">
+  <img src="figures/11_qq_normality_diagnostics.png" alt="QQ Normality Diagnostics" width="800"/>
+  <br/>
+  <img src="figures/12_outlier_detection_univariate.png" alt="Univariate Outlier Detection" width="800"/>
+  <br/>
+  <img src="figures/13_outlier_multivariate_mahalanobis.png" alt="Multivariate Mahalanobis Outliers" width="800"/>
+  <br/>
+  <img src="figures/14_distribution_fitting.png" alt="Distribution Fitting" width="800"/>
+  <br/>
+  <img src="figures/15_categorical_and_ecdf_plots.png" alt="Categorical and ECDF Diagnostics" width="800"/>
+</p>
+
 ### 10.3 Discovery time series — Notebook 02 §4.2
 * Annual discovery counts are **non-stationary** (ADF p = 0.30) and become stationary after first differencing (p ≈ 0). The cyclic × irregular component is dominated by two bursts (2014: 872 planets; 2016: 1,504 planets). A lag regression does **not** beat the persistence baseline on the 2020–2025 test years (MAE 110.6 vs. 114.7; n = 6, illustrative).
+
+<p align="center">
+  <img src="figures/16_discovery_time_series_diagnostics.png" alt="Discovery Time Series Diagnostics" width="800"/>
+</p>
 
 ### 10.4 Model building & evaluation — Notebook 03 §6.2b–§7.3
 * **What is predicted:** the regression target is planet mass, log₁₀(M_p), from radius, orbital period / semi-major axis, insolation and host-star properties (§6.1).
@@ -255,3 +316,13 @@ This section adds further diagnostics to sections 1–9 (which are unchanged). C
 * **Sensitivity analysis:** five pipelines (outlier treatment × imputation, including 586 previously discarded incomplete planets) give CV R² = 0.84–0.87 — the conclusions are robust to the cleaning choices.
 * **Clustering:** elbow + PCA (95.7 % variance in two components) and a contingency matrix against `planet_type` (ARI = 0.131, NMI = 0.258) confirm that K-means yields a coarse regime split, not the six-class taxonomy.
 * **Classification metrics (supplementary):** predicting giant planets from orbital and host-star features, Random Forest reaches precision 0.83, recall 0.84, F1 = 0.84, ROC-AUC = 0.94, whereas the majority-class baseline has accuracy 0.66 but F1 = 0 (the accuracy paradox).
+
+<p align="center">
+  <img src="figures/17_feature_selection_and_collinearity.png" alt="Feature Selection and Collinearity" width="800"/>
+  <br/>
+  <img src="figures/18_baseline_tree_and_model_comparison.png" alt="Baseline and Decision Tree Models" width="800"/>
+  <br/>
+  <img src="figures/19_sensitivity_analysis.png" alt="Sensitivity Analysis Pipelines" width="800"/>
+  <br/>
+  <img src="figures/20_classification_giant_planets.png" alt="Giant Planet Classification" width="800"/>
+</p>

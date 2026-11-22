@@ -15,10 +15,9 @@ This repository provides a comprehensive computational pipeline and empirical an
 | **[`data_collection.ipynb`](data_collection.ipynb)** | NASA TAP API automated query; dataset suitability check (size, column types, missing values, outliers) | [`exoplanet_data.csv`](exoplanet_data.csv) (703 raw columns) |
 | **[`01_data_preparation.ipynb`](01_data_preparation.ipynb)** | Feature selection, Keplerian derivations, missing value handling, mass provenance, and taxonomic classification<br>• Measurement-scale classification, range & feasibility screening, missing-data mechanism (MCAR / MAR / MNAR, Little's test), imputation comparison, transformation diagnostics | [`cleaned_exoplanet_data.csv`](cleaned_exoplanet_data.csv) (25 curated features)<br>[`figures/01_data_preparation_overview.png`](figures/01_data_preparation_overview.png) |
 | **[`02_exploratory_and_detection_analysis.ipynb`](02_exploratory_and_detection_analysis.ipynb)** | **EDA, Detection Biases, Discovery Trends & Missing Data**<br>• Fulton Radius Valley (~1.5–2.0 $R_\oplus$)<br>• Period-Radius demographics & Neptune Desert<br>• Giant planet-metallicity correlation<br>• Transit vs. Radial Velocity KS/MWU hypothesis tests<br>• Space telescope eras (*Kepler*, *TESS*, *Gaia*)<br>• Systematic MNAR missingness analysis<br>• Statistical measures, outlier detection (IQR, Z-score, Mahalanobis, Isolation Forest), distribution fitting, contingency analysis, time-series diagnostics | [`figures/02_eda_physical_properties.png`](figures/02_eda_physical_properties.png)<br>[`figures/02_eda_orbital_properties.png`](figures/02_eda_orbital_properties.png)<br>[`figures/02_eda_host_star_relations.png`](figures/02_eda_host_star_relations.png)<br>[`figures/03_detection_method_comparison.png`](figures/03_detection_method_comparison.png)<br>[`figures/04_discovery_trends.png`](figures/04_discovery_trends.png)<br>[`figures/05_missing_data_analysis.png`](figures/05_missing_data_analysis.png) |
-| **[`03_machine_learning_analysis.ipynb`](03_machine_learning_analysis.ipynb)** | **Machine Learning: Prediction & Clustering**<br>• Multi-model regression benchmark for planet mass $\log_{10}(M_p)$ (Ridge, Lasso, $k$-NN, SVR, Random Forest, HistGradientBoosting)<br>• Permutation feature importance & residual analysis<br>• Unsupervised $K$-Means & Gaussian Mixture Models ($k=4$)<br>• Physical demographic cluster recovery<br>• Baseline & decision-tree models, feature selection (filter / wrapper / embedded), sensitivity analysis, classification metrics | [`figures/06_ml_model_comparison.png`](figures/06_ml_model_comparison.png)<br>[`figures/06_ml_feature_importance.png`](figures/06_ml_feature_importance.png)<br>[`figures/07_clustering_elbow_and_silhouette.png`](figures/07_clustering_elbow_and_silhouette.png)<br>[`figures/07_clustering_demographics.png`](figures/07_clustering_demographics.png) |
+| **[`03_machine_learning_analysis.ipynb`](03_machine_learning_analysis.ipynb)** | **Machine Learning: Prediction & Clustering**<br>• Multi-model regression benchmark for planet mass $\log_{10}(M_p)$ (Ridge, Lasso, $k$-NN, SVR, Random Forest, HistGradientBoosting)<br>• Permutation feature importance & residual analysis<br>• Unsupervised $K$-Means evaluation across empirical mass ($k=3$) and full catalog ($k=2$) regimes<br>• Physical demographic cluster recovery & PCA projection<br>• Baseline & decision-tree models, feature selection (filter / wrapper / embedded), sensitivity analysis, classification metrics | [`figures/06_ml_model_comparison.png`](figures/06_ml_model_comparison.png)<br>[`figures/06_ml_feature_importance.png`](figures/06_ml_feature_importance.png)<br>[`figures/07_clustering_honest_assessment.png`](figures/07_clustering_honest_assessment.png)<br>[`figures/21_clustering_elbow_pca.png`](figures/21_clustering_elbow_pca.png) |
 | **[`webapp/`](webapp)** | **ExoLens website** — search a planet by name, see its data and the ML mass estimate<br>• Flask API + animated front end, runs locally | `python webapp/app.py` → http://127.0.0.1:5000 |
 | **[`FINAL_REPORT.md`](FINAL_REPORT.md)** | **Final Synthesis & Astrophysical Evaluation**<br>• Executive summary and core astrophysical patterns<br>• Observational bias modeling and selection functions<br>• ML benchmark evaluation and cluster demographics<br>• Limitations, observational horizons, and upcoming missions | Comprehensive synthesis report |
-
 ---
 
 ## 🔬 Key Scientific & Machine Learning Findings
@@ -28,10 +27,18 @@ This repository provides a comprehensive computational pipeline and empirical an
 * **The Neptune Desert**: A notable absence of intermediate-mass planets at ultra-short periods ($P < 3-5$ days), reflecting hydrodynamic envelope stripping and high-eccentricity tidal migration.
 * **Core Accretion Verification**: Host stars harboring giant planets ($M_p > 100\,M_\oplus$) exhibit significantly elevated metallicity ($[Fe/H]_{\text{median}} = +0.07$ dex) compared to terrestrial hosts ($-0.01$ dex), validating core accretion theory.
 
+<p align="center">
+  <img src="figures/02_eda_physical_properties.png" alt="Physical Properties of Confirmed Exoplanets" width="850"/>
+</p>
+
 ### 2. Detection Selection Biases
 * **Transit vs. Radial Velocity**: Kolmogorov-Smirnov and Mann-Whitney U tests ($p < 10^{-100}$) confirm that Transit and RV samples represent distinct observational windows rather than the true galactic population.
-  * *Transit*: Strongly biased toward short orbital periods ($P \sim 8.4$ days) and small host stars due to geometric transit probability ($P_{\text{tr}} \propto 1/a$).
-  * *Radial Velocity*: Biased toward massive planets ($M_p \sim 257\,M_\oplus$) at wider separations ($P \sim 111$ days) due to Doppler velocity semi-amplitude scaling ($K \propto M_p \sin i / \sqrt{a}$).
+  * *Transit*: Strongly biased toward short orbital periods (median $P \approx 7.97$ days) and small host stars due to geometric transit probability ($P_{\text{tr}} \propto 1/a$).
+  * *Radial Velocity*: Biased toward massive planets (median $M_p \approx 348.8\,M_\oplus$) at wider separations (median $P \approx 305.5$ days) due to Doppler velocity semi-amplitude scaling ($K \propto M_p \sin i / \sqrt{a}$).
+
+<p align="center">
+  <img src="figures/03_detection_method_comparison.png" alt="Detection Method Comparison" width="850"/>
+</p>
 
 ### 3. Machine Learning Mass Prediction Benchmark
 **What is being predicted?** The model predicts a planet's **mass** (as $\log_{10}(M_p)$, in Earth masses) from properties that are easier to measure: its **radius**, **orbital period and semi-major axis**, the **stellar flux it receives (insolation)**, and the **host star's** temperature, mass, metallicity and distance, plus the number of planets in the system. Mass is hard to measure directly (it needs radial-velocity or timing data), so a good predictor can estimate masses for the thousands of planets that only have a measured radius. Training uses only planets whose mass was actually measured.
@@ -40,20 +47,32 @@ Trained strictly on **2,796 empirical dynamical mass measurements** (preventing 
 
 | Model | 5-Fold CV $R^2$ | Test Set $R^2$ | Test RMSE ($\log_{10}$ dex) | Test MAE ($\log_{10}$ dex) | Test MedAE ($\log_{10}$ dex) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
-| **HistGradientBoosting** | **$0.856$** | **$0.880$** | **$0.350$** | **$0.223$** | **$0.126$** |
-| **Random Forest** | **$0.858$** | **$0.871$** | **$0.363$** | **$0.218$** | **$0.106$** |
-| **SVR (RBF Kernel)** | $0.811$ | $0.847$ | $0.395$ | $0.279$ | $0.192$ |
-| **$k$-Nearest Neighbors** | $0.787$ | $0.801$ | $0.451$ | $0.323$ | $0.232$ |
-| **Ridge Regression** | $0.760$ | $0.795$ | $0.458$ | $0.349$ | $0.288$ |
-| **Lasso Regression** | $0.759$ | $0.793$ | $0.460$ | $0.353$ | $0.293$ |
+| **HistGradientBoosting** | **$0.861$** | **$0.880$** | **$0.351$** | **$0.225$** | **$0.135$** |
+| **Random Forest** | **$0.860$** | **$0.871$** | **$0.363$** | **$0.218$** | **$0.107$** |
+| **SVR (RBF Kernel)** | $0.817$ | $0.847$ | $0.395$ | $0.279$ | $0.192$ |
+| **$k$-Nearest Neighbors** | $0.792$ | $0.801$ | $0.451$ | $0.323$ | $0.232$ |
+| **Ridge Regression** | $0.761$ | $0.795$ | $0.458$ | $0.349$ | $0.288$ |
+| **Lasso Regression** | $0.760$ | $0.793$ | $0.460$ | $0.353$ | $0.293$ |
 
-* The Random Forest regressor achieves a **Median Absolute Error of $0.106$ dex** (corresponding to predicting mass within **$\sim 27\%$ relative median error**).
-* **Feature Importance**: Planet radius accounts for $>72\%$ of variance, with secondary contributions from stellar insolation and orbital separation.
+* The Random Forest regressor achieves a **Median Absolute Error of $0.107$ dex** (corresponding to predicting mass within **$\sim 28\%$ relative median error**).
+* **Feature Importance**: Planet radius accounts for $82.6\%$ of MDI impurity reduction ($>72\%$ permutation importance drop), with secondary contributions from stellar insolation and orbital separation.
+
+<p align="center">
+  <img src="figures/06_ml_model_comparison.png" alt="ML Regression Benchmark" width="850"/>
+  <br/>
+  <img src="figures/06_ml_feature_importance.png" alt="ML Feature Importance" width="850"/>
+</p>
 
 ### 4. Unsupervised Clustering & Demographic Analysis
 Unsupervised $K$-Means and GMM clustering was systematically evaluated across two distinct regimes:
 * **Measured-Mass Subsample ($N=2,904$)**: Silhouette analysis identifies $k=3$ as optimal ($s=0.497$), cleanly resolving **Sub-Neptunes / Neptunes** ($N=1,168$), **Distant Cold Gas Giants** ($N=742$), and **Irradiated Hot Jupiters** ($N=994$). *Note: small rocky planets lack sufficient dynamical mass measurements in the archive to emerge as an isolated cluster.*
 * **Full Photometric Catalog ($N=5,756$)**: Clustering on 3 complete parameters ($R_p, P, S$) identifies $k=2$ as optimal ($s=0.496$), capturing the overarching cosmic bifurcation into **Small Volatile Worlds** ($N=4,693$) and **Gas Giants** ($N=1,063$).
+
+<p align="center">
+  <img src="figures/07_clustering_honest_assessment.png" alt="Honest Clustering Assessment" width="850"/>
+  <br/>
+  <img src="figures/21_clustering_elbow_pca.png" alt="Clustering Elbow and PCA" width="850"/>
+</p>
 
 ### 5. Missing Data & Outliers
 * **Missingness is not random**: Little's MCAR test rejects MCAR ($\chi^2 = 6{,}287$, 185 dof, $p \approx 0$). Missing orbital and stellar values depend on the observed discovery method and year (**MAR**), e.g. microlensing planets are $\approx 99\%$ missing in these features. MNAR cannot be tested from the data.
