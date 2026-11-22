@@ -16,8 +16,8 @@ This repository provides a comprehensive computational pipeline and empirical an
 | **[`01_data_preparation.ipynb`](01_data_preparation.ipynb)** | Feature selection, Keplerian derivations, missing value handling, mass provenance, and taxonomic classification<br>• Measurement-scale classification, range & feasibility screening, missing-data mechanism (MCAR / MAR / MNAR, Little's test), imputation comparison, transformation diagnostics | [`cleaned_exoplanet_data.csv`](cleaned_exoplanet_data.csv) (25 curated features)<br>[`figures/01_data_preparation_overview.png`](figures/01_data_preparation_overview.png) |
 | **[`02_exploratory_and_detection_analysis.ipynb`](02_exploratory_and_detection_analysis.ipynb)** | **EDA, Detection Biases, Discovery Trends & Missing Data**<br>• Fulton Radius Valley (~1.5–2.0 $R_\oplus$)<br>• Period-Radius demographics & Neptune Desert<br>• Giant planet-metallicity correlation<br>• Transit vs. Radial Velocity KS/MWU hypothesis tests<br>• Space telescope eras (*Kepler*, *TESS*, *Gaia*)<br>• Systematic MNAR missingness analysis<br>• Statistical measures, outlier detection (IQR, Z-score, Mahalanobis, Isolation Forest), distribution fitting, contingency analysis, time-series diagnostics | [`figures/02_eda_physical_properties.png`](figures/02_eda_physical_properties.png)<br>[`figures/02_eda_orbital_properties.png`](figures/02_eda_orbital_properties.png)<br>[`figures/02_eda_host_star_relations.png`](figures/02_eda_host_star_relations.png)<br>[`figures/03_detection_method_comparison.png`](figures/03_detection_method_comparison.png)<br>[`figures/04_discovery_trends.png`](figures/04_discovery_trends.png)<br>[`figures/05_missing_data_analysis.png`](figures/05_missing_data_analysis.png) |
 | **[`03_machine_learning_analysis.ipynb`](03_machine_learning_analysis.ipynb)** | **Machine Learning: Prediction & Clustering**<br>• Multi-model regression benchmark for planet mass $\log_{10}(M_p)$ (Ridge, Lasso, $k$-NN, SVR, Random Forest, HistGradientBoosting)<br>• Permutation feature importance & residual analysis<br>• Unsupervised $K$-Means evaluation across empirical mass ($k=3$) and full catalog ($k=2$) regimes<br>• Physical demographic cluster recovery & PCA projection<br>• Baseline & decision-tree models, feature selection (filter / wrapper / embedded), sensitivity analysis, classification metrics | [`figures/06_ml_model_comparison.png`](figures/06_ml_model_comparison.png)<br>[`figures/06_ml_feature_importance.png`](figures/06_ml_feature_importance.png)<br>[`figures/07_clustering_honest_assessment.png`](figures/07_clustering_honest_assessment.png)<br>[`figures/21_clustering_elbow_pca.png`](figures/21_clustering_elbow_pca.png) |
+| **[`webapp/`](webapp)** | **ExoLens website** — search a planet by name, see its data and the ML mass estimate<br>• Flask API + animated front end, runs locally | `python webapp/app.py` → http://127.0.0.1:5000 |
 | **[`FINAL_REPORT.md`](FINAL_REPORT.md)** | **Final Synthesis & Astrophysical Evaluation**<br>• Executive summary and core astrophysical patterns<br>• Observational bias modeling and selection functions<br>• ML benchmark evaluation and cluster demographics<br>• Limitations, observational horizons, and upcoming missions | Comprehensive synthesis report |
-
 ---
 
 ## 🔬 Key Scientific & Machine Learning Findings
@@ -86,6 +86,31 @@ Unsupervised $K$-Means and GMM clustering was systematically evaluated across tw
 * **Feature selection**: planet radius and semi-major axis are selected by all five selectors; period and semi-major axis are almost collinear ($r = 0.996$, Kepler's third law) yet dropping one leaves the Random Forest CV $R^2$ unchanged ($0.860$).
 * **Sensitivity analysis**: five outlier $\times$ imputation pipelines (including planets that were previously dropped as incomplete) all give CV $R^2$ between $0.84$ and $0.87$.
 * **Giant-planet classification** (orbit + host-star features only): Random Forest reaches precision $0.83$, recall $0.84$, F1 $0.84$, ROC-AUC $0.94$; the majority-class baseline has $66\%$ accuracy but F1 $=0$.
+
+## 🌐 ExoLens Web App
+
+A local website for the project: type **one thing — a planet name** — and everything else is read or clicked.
+
+```bash
+pip install -r requirements.txt
+python webapp/app.py
+# then open http://127.0.0.1:5000
+```
+*(The first start takes about 10 seconds while the model trains. Keep the terminal open; press `Ctrl+C` to stop.)*
+
+**Pages**
+* **Search (home)** — what the site does in one sentence, a search box with live suggestions, one-click example planets, a 3-step "how it works", the six planet kinds, and a short "good to know" section.
+* **Planet page** — a plain-words summary, the model's mass estimate with an 80% range (and the measured mass next to it when there is one), a to-scale size comparison with Earth and Jupiter, the facts with a short explanation of each, other planets in the same system, a map of all planets, and similar worlds.
+* **Browse planets** — pick a kind (Terrestrial … Hot Jupiter), sort the list, and click any planet. Nothing to type.
+* **How it works** — a short guide with a worked example of the mass estimate, how to read the map, a glossary and common questions.
+* **About the model** — data source, how the estimate is made, how accurate it is and where it can be wrong.
+
+**How it works**
+* `webapp/app.py` (Flask) loads `cleaned_exoplanet_data.csv` and trains the same Random Forest as Notebook 03 (9 features, trained on the 2,796 planets with a measured mass).
+* For planets that were in the training data, the page shows an **out-of-fold** prediction (that planet's own mass was hidden), so the estimate is never a memorised answer.
+* If a planet has no radius, no estimate is shown; if other inputs are missing they are replaced by typical values and the page says so.
+* The front end (`webapp/static/`) is plain HTML, CSS and JavaScript with a WebGL gradient background. No build step is needed. Fonts (Outfit, Allura) load from Google Fonts; without internet the site falls back to system fonts.
+* The layout adapts to phones, tablets, laptops (including small windows and display scaling) and large monitors, and respects the system's "reduce motion" setting.
 
 ---
 
